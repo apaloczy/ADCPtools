@@ -70,6 +70,15 @@ nt = size(b1, 2);              % Number of records in the time series.
 d2r = pi/180;
 head = head.*d2r; ptch = ptch.*d2r; roll = roll.*d2r;
 
+if options.Gimbaled==true % Correct heading (D&S 2007, eq. A2).
+  disp('Gimbaled instrument case.')
+  Sph2Sph3 = sin(ptch).*sin(roll);
+  head = head + asin( Sph2Sph3./sqrt(cos(ptch).^2 + Sph2Sph3.^2) );
+else                      % Correct pitch (D&S 2007, eq. A1; Lohrmann et al. 1990, eq. A1).
+  disp('Fixed instrument case.')
+  ptch = asin( (sin(ptch).*cos(roll))./sqrt(1 - (sin(ptch).*sin(roll)).^2) );
+end
+
 % Time-dependent angles (heading, pitch and roll).
 Sph1 = sin(head);
 Sph2 = sin(ptch);
