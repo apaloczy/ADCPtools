@@ -87,17 +87,17 @@ A = [-1  1  0  0  0;
      -1 -1 -1 -1  0;
       0  0  0  0 -1];
 
-uvw = zeros(Nz, Nt, 4);
+vxyz = zeros(Nz, Nt, 4);
 for nz=1:Nz
   disp(['Calculating Vx, Vy, Vz at bin ', num2str(nz), '/', num2str(Nz)])
   for nt=1:Nt
-    uvw(nz,nt,:) = A*squeeze(B(nz,nt,:));
+    vxyz(nz,nt,:) = A*squeeze(B(nz,nt,:));
   end
 end
 
-Vx = uvw(:,:,1)*uvfac;
-Vy = uvw(:,:,2)*uvfac;
-Vz = uvw(:,:,3)*wfac;
-Vz5 = uvw(:,:,4);
+Vx = vxyz(:,:,1)*uvfac;
+Vy = vxyz(:,:,2)*uvfac;
+Vz = vxyz(:,:,3)*wfac;
+Vz5 = vxyz(:,:,4);
 
 end
