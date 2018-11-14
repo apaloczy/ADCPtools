@@ -1,5 +1,5 @@
 # ADCPtools
-Beam to Earth coordinate transformations and other utilities for ADCP data.
+Beam to Earth coordinate transformations and other utilities for Acoustic Doppler Current Profiler (ADCP) data.
 
 ## Convert profiles of along-beam velocity to Earth coordinates (east-north-up).
 Convert raw along-beam velocity (positive toward transducer) time series (ntimes x nbins) to Earth-referenced velocity:
@@ -21,7 +21,7 @@ Where
 
 * ```w5``` is the vertical velocity calculated from the vertical beam only.
 
-* ```head```, ```pitch``` and ```roll``` are the heading (rotation about the x-axis (beam 5), positive counter-clockwise), pitch (rotation about the x-axis (beam 1), positive counter-clockwise) and roll (rotation about the y-axis (beam 3), positive counter-clockwise) angles measured by the ADCP, in degrees.
+* ```head```, ```pitch``` and ```roll``` are the heading (rotation about the z-axis (beam 5), positive clockwise), pitch (rotation about the x-axis (beam 1), positive clockwise) and roll (rotation about the y-axis (beam 3), positive clockwise) angles measured by the ADCP, in degrees.
 
 * ```theta``` is the beam angle measured from beam 5's direction (vertical if the instrument is level), in degrees.
 
