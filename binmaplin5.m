@@ -1,7 +1,7 @@
-function [b1m, b2m, b3m, b4m] = binmaplin(b1, b2, b3, b4, r, theta, ptch, roll)
+function [b1m, b2m, b3m, b4m, b5m] = binmaplin5(b1, b2, b3, b4, b5, r, theta, ptch, roll)
 %USAGE
 %-----
-%[b1m, b2m, b3m, b4m] = binmaplin(b1, b2, b3, b4, r, theta, ptch, roll)
+%[b1m, b2m, b3m, b4m, b5m] = binmaplin5(b1, b2, b3, b4, b5, r, theta, ptch, roll)
 %
 %Interpolate beam-coordinate velocities to fixed horizontal planes based on tilt angles
 %(pitch and roll).
@@ -34,13 +34,13 @@ for k=1:nt
   PR(:,:,k) = PRk;
 end
 
-%     b1    b2    b3    b4
-E = [-Sth  +Sth    0     0;
-       0     0   -Sth  +Sth;
-     -Cth  -Cth  -Cth  -Cth];
+%      b1    b2    b3    b4   b5
+E = [-Sth  +Sth    0     0    0;
+       0     0   -Sth  +Sth   0;
+     -Cth  -Cth  -Cth  -Cth  -1];
 
-Bo = cat(3, b1, b2, b3, b4);
-for i=1:4
+Bo = cat(3, b1, b2, b3, b4, b5);
+for i=1:5
   Ei = E(:,i);
   Boi = Bo(:,:,i); % z, t, bi.
 
@@ -63,6 +63,7 @@ b1m = Bm(:,:,1);
 b2m = Bm(:,:,2);
 b3m = Bm(:,:,3);
 b4m = Bm(:,:,4);
+b5m = Bm(:,:,5);
 
 end
 

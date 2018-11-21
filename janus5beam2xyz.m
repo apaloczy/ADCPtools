@@ -63,7 +63,7 @@ end
 switch options.Binmap
 case 'linear'
   disp('Mapping beams to horizontal planes with *linear* interpolation.')
-  [b1, b2, b3, b4, b5] = binmaplin(b1, b2, b3, b4, b5, rz, theta, ptch, roll);
+  [b1, b2, b3, b4, b5] = binmaplin5(b1, b2, b3, b4, b5, rz, theta, ptch, roll);
 case 'nearest'
   disp('Mapping beams to horizontal planes with *nearest-neighbor* interpolation.')
   % Implement nn.
