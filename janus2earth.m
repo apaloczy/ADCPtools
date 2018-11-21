@@ -84,7 +84,7 @@ function [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4, vararg
 % OUTPUTS
 % -------
 % [u, v, w]           [east, north, up, up-(from vertical beam only)] components
-%                         of Earth-referenced velocity vector.
+%                      of Earth-referenced velocity vector.
 %
 % For TRDI instruments, call function like this:
 % [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4, b5)
@@ -96,32 +96,13 @@ options = struct('Gimbaled', true, 'Binmap', 'none', 'r', NaN);
 optionNames = fieldnames(options); % read the acceptable names.
 nArgs = length(varargin);          % count arguments.
 
-if ~isempty(varargin) && any(strcmp(varargin, 'Binmap'))
+if any(strcmp(varargin, 'Binmap'))
   BinmapType = varargin{find(strcmp(varargin, 'Binmap'))+1};
   if ~strcmp(BinmapType, 'none')
-
-    if isnan(varargin{end})
-       error('Need along-beam coordinate for bin-mapping.')
-    else
-      r = varargin{end};
-      varargin = varargin(1:end-1);
-      nArgs = nArgs - 1;
-    end
-
+    r = varargin{end};
+    varargin = varargin(1:end-1);
   end
-end
-
-if round(nArgs/2)~=nArgs/2
-   error('Need propertyName/propertyValue pairs')
-end
-
-for pair = reshape(varargin,2,[])
-  inpName = pair{1};
-  if any(strcmp(inpName,optionNames))
-    options.(inpName) = pair{2};
-  else
-    error('option %s is not recognized',inpName)
-  end
+  nArgs = nArgs - 1;
 end
 
 nz = size(b1, 1);              % Number of vertical bins.
@@ -165,8 +146,8 @@ cz3 = Cph2.*Cph3;
 %                                 the same as the one used by the instrument's firmware if
 %                                 the coordinate transformation mode is set to "instrument
 %                                 coordinates" before deployment.
-if ~strcmp(options.Binmap, 'none')
-  [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta, 'Binmap', options.Binmap, ptch./d2r, roll./d2r, r);
+if ~strcmp(BinmapType, 'none')
+  [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta, 'Binmap', BinmapType, ptch./d2r, roll./d2r, r);
 else
   [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta);
 end
@@ -174,4 +155,5 @@ end
 u = +Vx.*cx1 + Vy.*cy1 + Vz.*cz1;
 v = -Vx.*cx2 + Vy.*cy2 - Vz.*cz2;
 w = -Vx.*cx3 + Vy.*cy3 + Vz.*cz3;
+
 end
