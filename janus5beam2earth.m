@@ -7,7 +7,8 @@ function [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b
 %                              OR
 %
 % [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b4, b5,
-%                                 'uvwBeam5', true, 'Gimbaled', true, 'Binmap', BinmappingType, rz)
+%                                 'uvwBeam5', true, 'Gimbaled', true, 'Binmap', BinmappingType,
+%                                     r, r5)
 %
 % Calculates Earth velocities (u,v,w) = (east,north,up) from beam-referenced velocity time series
 % from a 5-beam Janus ADCP, (e.g., Appendix A of Dewey & Stringer (2007), Equations A3-A11).
@@ -95,36 +96,18 @@ function [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b
 %
 % For Nortek instruments, call function like this:
 % [u, v, w] = janus2earth(head, -roll, ptch, theta, -b1, -b3, -b4, -b2, -b5)
-options = struct('uvwBeam5', true,'Gimbaled', true, 'Binmap', 'none', 'rz', NaN);
+options = struct('uvwBeam5', true,'Gimbaled', true, 'Binmap', 'none', 'r', NaN, 'r5', NaN);
 optionNames = fieldnames(options); % read the acceptable names.
 nArgs = length(varargin);          % count arguments.
 
-if ~isempty(varargin) && any(strcmp(varargin, 'Binmap'))
+if any(strcmp(varargin, 'Binmap'))
   BinmapType = varargin{find(strcmp(varargin, 'Binmap'))+1};
   if ~strcmp(BinmapType, 'none')
-
-    if isnan(varargin{end})
-       error('Need along-beam coordinate for bin-mapping.')
-    else
-      rz = varargin{end};
-      varargin = varargin(1:end-1);
-      nArgs = nArgs - 1;
-    end
-
+    r = varargin{end-1};
+    r5 = varargin{end};
+    varargin = varargin(1:end-2);
   end
-end
-
-if round(nArgs/2)~=nArgs/2
-   error('Need propertyName/propertyValue pairs')
-end
-
-for pair = reshape(varargin,2,[])
-  inpName = pair{1};
-  if any(strcmp(inpName,optionNames))
-    options.(inpName) = pair{2};
-  else
-    error('option %s is not recognized',inpName)
-  end
+  nArgs = nArgs - 2;
 end
 
 nz = size(b1, 1);              % Number of vertical bins.
@@ -170,8 +153,8 @@ cz3 = Cph2.*Cph3;
 %                                 the same as the one used by the instrument's firmware if
 %                                 the coordinate transformation mode is set to "instrument
 %                                 coordinates" before deployment.
-if ~strcmp(options.Binmap, 'none')
-  [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, 'Binmap', options.Binmap, ptch./d2r, roll./d2r, rz);
+if ~strcmp(BinmapType, 'none')
+  [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, 'Binmap', BinmapType, ptch./d2r, roll./d2r, r, r5);
 else
   [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta);
 end
@@ -187,4 +170,7 @@ else
   u = +Vx.*cx1 + Vy.*cy1 + Vz.*cz1;
   v = -Vx.*cx2 + Vy.*cy2 - Vz.*cz2;
   w = -Vx.*cx3 + Vy.*cy3 + Vz.*cz3;
+end
+
+
 end

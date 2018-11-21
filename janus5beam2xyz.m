@@ -6,7 +6,7 @@ function [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, varargin)
 %    OR
 %
 % [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, 'Binmap', BinmappingType, ...
-%                                    ptch, roll, rz)
+%                                       ptch, roll, r, r5)
 %
 % Where 'BinmappingType' is the type of bin mapping to perform on the raw beam velocities.
 %
@@ -39,38 +39,40 @@ optionNames = fieldnames(options); % read the acceptable names.
 nArgs = length(varargin);          % count arguments.
 
 if ~isempty(varargin)
-  if ~strcmp(varargin{1}, 'none')
+  BinmapType = varargin{find(strcmp(varargin, 'Binmap'))+1};
+  if ~strcmp(BinmapType, 'none')
 
-    if nArgs<5
+    if nArgs<6
        error('Need pitch and roll angles and along-beam coordinate for bin-mapping.')
     end
 
-    for pair = varargin(1:2)'
-      inpName = pair{1};
-      if any(strcmp(inpName,optionNames))
-        options.(inpName) = pair{2};
-      else
-        error('option %s is not recognized',inpName)
-      end
-    end
     ptch = varargin{3};
     roll = varargin{4};
-    rz = varargin{5};
+    r = varargin{5};
+    r5 = varargin{6};
 
   end
+else
+  BinmapType = 'none';
 end
 
-switch options.Binmap
+switch BinmapType
 case 'linear'
   disp('Mapping beams to horizontal planes with *linear* interpolation.')
-  [b1, b2, b3, b4, b5] = binmaplin5(b1, b2, b3, b4, b5, rz, theta, ptch, roll);
-case 'nearest'
+  [b1, b2, b3, b4, b5] = binmap5(b1, b2, b3, b4, b5, r, r5, theta, ptch, roll, 'linear');
+case 'nn'
   disp('Mapping beams to horizontal planes with *nearest-neighbor* interpolation.')
-  % Implement nn.
+  [b1, b2, b3, b4, b5] = binmap5(b1, b2, b3, b4, b5, r, r5, theta, ptch, roll, 'nn');
 case 'none'
   disp('Bin mapping NOT applied.')
 otherwise
-  error(['Invalid bin mapping method: ' option.Binmap '.'])
+  error(['Invalid bin mapping method: ' BinmapType '.'])
+end
+
+[Nz Nt] = size(b1);
+if size(b5, 1)~=Nz
+  aux = ones(Nz - size(b5, 1), Nt).*NaN;
+  b5 = [b5; aux];
 end
 
 B = cat(3, b1, b2, b3, b4, b5);
@@ -78,7 +80,6 @@ d2r = pi/180;
 theta = theta.*d2r;
 uvfac = 1./(2.*sin(theta));
 wfac = 1./(4.*cos(theta)); % For w derived from beams 1-4.
-[Nz Nt] = size(b1);
 
 % 3rd row: w from the average of the 4 Janus beams.
 % 4rd row: w from the 5th beam only.
