@@ -1,7 +1,7 @@
-function [b1m, b2m, b3m, b4m] = binmaplin(b1, b2, b3, b4, r, theta, ptch, roll)
+function [b1m, b2m, b3m, b4m] = binmap(b1, b2, b3, b4, r, theta, ptch, roll, how)
 %USAGE
 %-----
-%[b1m, b2m, b3m, b4m] = binmaplin(b1, b2, b3, b4, r, theta, ptch, roll)
+%[b1m, b2m, b3m, b4m] = binmap(b1, b2, b3, b4, r, theta, ptch, roll, how)
 %
 %Interpolate beam-coordinate velocities to fixed horizontal planes based on tilt angles
 %(pitch and roll).
@@ -21,9 +21,6 @@ Z = r.*Cth;
 dZu = Z(end) - Z(end-1);
 rmax = r(end);
 nz = length(Z);
-while Z(end)<(rmax-dZu)
-  Z = [Z Z(end)+dZu]; % Complete vertical axis to map to.
-end
 z00 = [0 0 1]';
 
 nt = length(ptch);
@@ -34,12 +31,13 @@ for k=1:nt
   PR(:,:,k) = PRk;
 end
 
-%     b1    b2    b3    b4
+%      b1    b2    b3    b4
 E = [-Sth  +Sth    0     0;
        0     0   -Sth  +Sth;
      -Cth  -Cth  -Cth  -Cth];
 
 Bo = cat(3, b1, b2, b3, b4);
+
 for i=1:4
   Ei = E(:,i);
   Boi = Bo(:,:,i); % z, t, bi.
@@ -48,13 +46,26 @@ for i=1:4
     zi = abs((PR(:,:,k)*Ei)'*z00).*r; % Actual bin height, dot product of tilt matrix with along-beam distance vector.
     boi = Boi(:,k);
 
-    for J=1:nz-1
+    for J=1:nz
       Zj = Z(J);
-      j = nearfl(zi, Zj); jj = j + 1;
-      zij = zi(j); zijj = zi(jj); dzj = zijj - zij;
-      bmi(J,k) = ((Zj - zij)./dzj).*boi(j) + ((zijj - Zj)./dzj).*boi(jj);
+
+      if strcmp(how, 'linear')                         % Linear interpolation.
+        j = nearfl(zi, Zj);
+        jj = j + 1;
+        if jj>nz
+          j = j - 1;
+          jj = jj - 1;
+        end
+        zij = zi(j);
+        zijj = zi(jj);
+        dzj = zijj - zij;
+        bmi(J,k) = ((Zj - zij)./dzj).*boi(j) + ((zijj - Zj)./dzj).*boi(jj);
+      elseif strcmp(how, 'nn')                         % Nearest-neighbor interpolation.
+        bmi(J,k) = boi(near(zi, Zj));
+      end
     end
   end
+
   Bm(:,:,i) = bmi;
 
 end
@@ -64,14 +75,4 @@ b2m = Bm(:,:,2);
 b3m = Bm(:,:,3);
 b4m = Bm(:,:,4);
 
-end
-
-function idxfl = nearfl(x, x0)
-  % Get the lowest index of the two points in
-  % vector x that bound the number x0.
-  dx = abs(x - x0);
-  flr = mink(dx, 2);
-  il = find(dx==flr(1));
-  ir = find(dx==flr(2));
-  idxfl = min([il ir]);
 end
