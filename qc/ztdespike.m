@@ -100,9 +100,16 @@ function [udespiked, ispikes] = ztdespike(u, t, varargin)
   y = x;
   ref = runmed(x, windowLength);
   dx = x - ref;
-  sd = std(dx(isfinite(dx)));
-  I = abs(dx) > threshold*sd;
-  good = ~I;
+  dx = dx(isfinite(dx));
+  sd = std(dx);
+  threshsd = threshold*sd;
+  dx = abs(dx);
+  I = find(dx > threshsd);
+
+  if isempty(I) % No spikes.
+    return
+  end
+  good = find(dx <= threshsd);
 
   switch action
     case 'replace'
@@ -110,12 +117,15 @@ function [udespiked, ispikes] = ztdespike(u, t, varargin)
     case 'nan'
       y(I) = NaN;
     case 'interp'
-      try
-        y(I) = interp1(t(good), x(good), t(I));
-      catch
-        y(I) = NaN;
-        warning(['Not enough good bins to interpolate over bad bins (' datestr(t(1)) ' - ' datestr(t(end)) ').']);
-      end
+
+        if numel(good)>1
+          y(I) = interp1(t(good), x(good), t(I));
+        else
+          y(I) = NaN;
+          warning(['Not enough good bins to interpolate over bad bins (' datestr(t(1)) ' - ' datestr(t(end)) ').']);
+        end
+
   end
-  end
-end
+  end % despike()
+
+end % ztdespike()
