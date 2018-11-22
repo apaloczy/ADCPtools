@@ -10,7 +10,7 @@ Convert raw along-beam velocity (positive toward transducer) time series (ntimes
 or, with all optional arguments specified,
 ```
 [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b4, b5, ...
-                                 'uvwBeam5', true, 'Gimbaled', true, 'Binmap', true, rz)
+                                 'uvwBeam5', true, 'Gimbaled', true, 'Binmap', 'linear', r, r5)
 ```
 
 Where
@@ -21,7 +21,7 @@ Where
 
 * ```w5``` is the vertical velocity calculated from the vertical beam only.
 
-* ```head```, ```pitch``` and ```roll``` are the heading (rotation about the z-axis (beam 5), positive clockwise), pitch (rotation about the x-axis (beam 1), positive clockwise) and roll (rotation about the y-axis (beam 3), positive clockwise) angles measured by the ADCP, in degrees.
+* ```head```, ```ptch``` and ```roll``` are the heading (rotation about the z-axis (beam 5), positive clockwise), pitch (rotation about the x-axis (beam 1), positive clockwise) and roll (rotation about the y-axis (beam 3), positive clockwise) angles measured by the ADCP, in degrees.
 
 * ```theta``` is the beam angle measured from beam 5's direction (vertical if the instrument is level), in degrees.
 
@@ -29,6 +29,6 @@ Where
 
 * ```'Gimbaled'``` (```true```/```false```) indicates whether the pitch and roll sensors were gimbaled (mounted on a free-swiveling platform as opposed to a rigid frame).
 
-* ```'Binmap'``` (```'none'```/```'linear'```) indicates whether or not to perform bin-mapping on the raw beam velocities. Bin-mapping here means interpolating the velocities from all beams to the same horizontal plane before converting to instrument and then Earth coordinates. Defaults to ```'none'```, _i.e._, the assumption that pitch and roll are zero at all times.
+* ```'Binmap'``` (```'none'```/```'nn'```/```'linear'```) indicates whether or not to perform bin-mapping on the raw beam velocities. Bin-mapping here means interpolating the velocities from all beams to the same horizontal plane before converting to instrument and then Earth coordinates. Defaults to ```'none'```, _i.e._, the assumption that pitch and roll are zero at all times. ```'linear'``` and ```'nn'``` specify linear and nearest-neighbor interpolation, respectively.
 
-* ```rz``` is a vector with the along-beam positions of the center of each bin. Required only if ```'Binmap'``` is ```true```.
+* ```r``` and ```r5``` are vectors with the along-beam positions of the center of each bin for the Janus (\#1-4) and vertical (\#5) beams. Required only if ```'Binmap'``` is not ```none```.
