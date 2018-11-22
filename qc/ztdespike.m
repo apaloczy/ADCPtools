@@ -73,7 +73,7 @@ function [udespiked, ispikes] = ztdespike(u, t, varargin)
       uk = u(k, :);
       [udspk, ispk] = despike(uk, t, threshold, windowLength, action);
       udespiked(k, :) = udspk;
-      ispikes = [ispikes; ispk];
+      ispikes = [ispikes, ispk];
       if visualize~=0
         plot(it, uk, 'r');
         plot(it, udspk, 'k');
