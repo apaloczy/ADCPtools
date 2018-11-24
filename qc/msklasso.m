@@ -52,8 +52,8 @@ function varargout = msklasso(x, y, A)
     d = delim(n);
     w = wat(1:d-1);
     fa = find(w==1);   % 'left-click'
-    fh = find(w==118); % 'h'
-    fv = find(w==104); % 'v'
+    fh = find(w==104); % 'h'
+    fv = find(w==118); % 'v'
     xa = xx(fa); ya = yy(fa);
     xh = sort(xx(fh)); yh = sort(yy(fh));
     xv = sort(xx(fv)); yv = sort(yy(fv));
