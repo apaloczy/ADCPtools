@@ -19,8 +19,8 @@ function [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b
 %    ================
 %
 % * Velocity toward transducers' faces: POSITIVE
-% * Counter-clockwise PITCH (tilt about x-AXIS): POSITIVE (beam 4 higher than beam 3)
-% * Counter-clockwise ROLL (tilt about y-AXIS):  POSITIVE (beam 1 higher than 2)
+% * Clockwise PITCH (tilt about x-AXIS): POSITIVE (beam 3 higher than beam 4)
+% * Clockwise ROLL (tilt about y-AXIS):  POSITIVE (beam 2 higher than beam 1)
 %
 %       ^ positive y axis, psi = 0
 %       |
@@ -38,7 +38,7 @@ function [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b
 %    ==================
 %
 % * Velocity toward transducers' faces: NEGATIVE
-% * Counter-clockwise PITCH (tilt about y-AXIS): POSITIVE (beam 1 higher than beam 3)
+% * Counter-clockwise PITCH (tilt about y-AXIS, equivalent to ROLL in the TRDI convention): POSITIVE (beam 1 higher than beam 3)
 % * Counter-clockwise ROLL (tilt about x-AXIS):  NEGATIVE (beam 2 higher than beam 4)
 %
 %       ^ positive y axis, psi = 0
@@ -95,7 +95,7 @@ function [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b
 % [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4, b5)
 %
 % For Nortek instruments, call function like this:
-% [u, v, w] = janus2earth(head, -roll, ptch, theta, -b1, -b3, -b4, -b2, -b5)
+% [u, v, w] = janus2earth(head, roll, -ptch, theta, -b1, -b3, -b4, -b2, -b5)
 options = struct('uvwBeam5', true,'Gimbaled', true, 'Binmap', 'none', 'r', NaN, 'r5', NaN);
 optionNames = fieldnames(options); % read the acceptable names.
 nArgs = length(varargin);          % count arguments.
