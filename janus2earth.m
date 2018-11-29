@@ -91,10 +91,8 @@ function [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4, vararg
 %
 % For Nortek instruments, call function like this:
 % [u, v, w] = janus2earth(head, roll, -ptch, theta, -b1, -b3, -b4, -b2, -b5)
-
 options = struct('Gimbaled', true, 'Binmap', 'none', 'r', NaN);
 optionNames = fieldnames(options); % read the acceptable names.
-nArgs = length(varargin);          % count arguments.
 
 if any(strcmp(varargin, 'Binmap'))
   BinmapType = varargin{find(strcmp(varargin, 'Binmap'))+1};
@@ -102,7 +100,12 @@ if any(strcmp(varargin, 'Binmap'))
     r = varargin{end};
     varargin = varargin(1:end-1);
   end
-  nArgs = nArgs - 1;
+end
+
+if any(strcmp(varargin, 'Gimbaled'))
+  Gimbaled = varargin{find(strcmp(varargin, 'Gimbaled'))+1};
+else
+  Gimbaled = options.Gimbaled; % Default value.
 end
 
 nz = size(b1, 1);              % Number of vertical bins.

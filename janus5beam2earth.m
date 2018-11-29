@@ -98,7 +98,6 @@ function [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b
 % [u, v, w] = janus2earth(head, roll, -ptch, theta, -b1, -b3, -b4, -b2, -b5)
 options = struct('uvwBeam5', true,'Gimbaled', true, 'Binmap', 'none', 'r', NaN, 'r5', NaN);
 optionNames = fieldnames(options); % read the acceptable names.
-nArgs = length(varargin);          % count arguments.
 
 if any(strcmp(varargin, 'Binmap'))
   BinmapType = varargin{find(strcmp(varargin, 'Binmap'))+1};
@@ -107,7 +106,20 @@ if any(strcmp(varargin, 'Binmap'))
     r5 = varargin{end};
     varargin = varargin(1:end-2);
   end
-  nArgs = nArgs - 2;
+else
+  BinmapType = options.Binmap; % Default value.
+end
+
+if any(strcmp(varargin, 'Gimbaled'))
+  Gimbaled = varargin{find(strcmp(varargin, 'Gimbaled'))+1};
+else
+  Gimbaled = options.Gimbaled; % Default value.
+end
+
+if any(strcmp(varargin, 'uvwBeam5'))
+  uvwBeam5 = varargin{find(strcmp(varargin, 'uvwBeam5'))+1};
+else
+  uvwBeam5 = options.uvwBeam5; % Default value.
 end
 
 nz = size(b1, 1);              % Number of vertical bins.
