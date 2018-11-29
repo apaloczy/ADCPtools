@@ -1,11 +1,11 @@
-function varargout = msklasso(x, y, A)
+function varargout = mskpolygon(x, y, A)
   % USAGE
   % -----
-  % Aq = msklasso(x, y, A)
+  % Aq = mskpolygon(x, y, A)
   %
   %       --OR--
   %
-  % [Aq, msks] = msklasso(x, y, A)
+  % [Aq, msks] = mskpolygon(x, y, A)
   %
   % Given an array `A(x, y)`, select polygon vertices using points selected
   % using ginput, and return a copy of `A` (`Aq`) with all points inside
