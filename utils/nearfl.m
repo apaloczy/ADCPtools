@@ -3,7 +3,7 @@ function idxfl = nearfl(x, x0)
   % vector x that bound the number x0.
   dx = abs(x - x0);
   flr = mink(dx, 2);
-  il = find(dx==flr(1));
-  ir = find(dx==flr(2));
+  il = find(dx==flr(1)); il = il(1);
+  ir = find(dx==flr(2)); ir = ir(1);
   idxfl = min([il ir]);
 end
