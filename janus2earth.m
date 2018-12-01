@@ -1,13 +1,13 @@
 function [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4, varargin)
 % USAGE
 % -----
-% [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4,
-%                        'Gimbaled', true)
+% [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4)
 %
 %                              OR
 %
 % [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4,
-%                        'Gimbaled', true, 'Binmap', BinmappingType, r)
+%                        'Gimbaled', true|false, 'use3BeamSol', true|false, ...
+%                        'Binmap', BinmappingType, r)
 %
 % Calculates Earth velocities (u,v,w) = (east,north,up) from beam-referenced velocity time series
 % from a 4-beam Janus ADCP, (e.g., Appendix A of Dewey & Stringer (2007), Equations A3-A11).
@@ -78,6 +78,9 @@ function [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4, vararg
 %                                  to instrument coordinates (Ott, 2002; Dewey & Stringer, 2007).
 %                                  *The default is to NOT perform any bin mapping.
 %
+% use3BeamSol [true or false]      Whether to use three-beam solutions when exactly one beam has
+%                                  no data in one cell.
+%
 % Code for parsing named options as inputs from: https://stackoverflow.com/questions/2775263/
 % how-to-deal-with-name-value-pairs-of-function-arguments-in-matlab
 %
@@ -91,7 +94,7 @@ function [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4, vararg
 %
 % For Nortek instruments, call function like this:
 % [u, v, w] = janus2earth(head, roll, -ptch, theta, -b1, -b3, -b4, -b2, -b5)
-options = struct('Gimbaled', true, 'Binmap', 'none', 'r', NaN);
+options = struct('Gimbaled', true, 'use3BeamSol', false, 'Binmap', 'none', 'r', NaN);
 optionNames = fieldnames(options); % read the acceptable names.
 
 if any(strcmp(varargin, 'Binmap'))
@@ -106,6 +109,12 @@ if any(strcmp(varargin, 'Gimbaled'))
   Gimbaled = varargin{find(strcmp(varargin, 'Gimbaled'))+1};
 else
   Gimbaled = options.Gimbaled; % Default value.
+end
+
+if any(strcmp(varargin, 'use3BeamSol'))
+  use3BeamSol = varargin{find(strcmp(varargin, 'use3BeamSol'))+1};
+else
+  use3BeamSol = options.use3BeamSol; % Default value.
 end
 
 nz = size(b1, 1);              % Number of vertical bins.
@@ -150,9 +159,9 @@ cz3 = Cph2.*Cph3;
 %                                 the coordinate transformation mode is set to "instrument
 %                                 coordinates" before deployment.
 if ~strcmp(BinmapType, 'none')
-  [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta, 'Binmap', BinmapType, ptch./d2r, roll./d2r, r);
+  [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta, 'use3BeamSol', use3BeamSol, 'Binmap', BinmapType, ptch./d2r, roll./d2r, r);
 else
-  [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta);
+  [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta, 'use3BeamSol', use3BeamSol);
 end
 
 u = +Vx.*cx1 + Vy.*cy1 + Vz.*cz1;
