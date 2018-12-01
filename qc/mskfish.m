@@ -1,11 +1,11 @@
-function [b1, b2, b3, b4] = mskfish(z, t, b1, b2, b3, b4, amp1, amp2, amp3, amp4, varargin)
+function [b1, b2, b3, b4] = mskfish(b1, b2, b3, b4, amp1, amp2, amp3, amp4, varargin)
 % USAGE
 % -----
-% [b1 b2 b3 b4] = mskfish(z, t, b1, b2, b3, b4, amp1, amp2, amp3, amp4)
+% [b1 b2 b3 b4] = mskfish(b1, b2, b3, b4, amp1, amp2, amp3, amp4)
 %
 %                 ---OR---
 %
-% [b1 b2 b3 b4] = mskfish(z, t, b1, b2, b3, b4, amp1, amp2, amp3, amp4,
+% [b1 b2 b3 b4] = mskfish(b1, b2, b3, b4, amp1, amp2, amp3, amp4,
 %                        'Threshold', thresh)
 %
 % REFERENCE
@@ -24,9 +24,7 @@ else
   thresh = options.Threshold; % Default value.
 end
 
-nz = length(z);
-nt = length(t);
-
+[nz, nt] = size(b1);
 for i=1:nt
   Bi = [b1(:,i) b2(:,i) b3(:,i) b4(:,i)];
   for k=1:nz
