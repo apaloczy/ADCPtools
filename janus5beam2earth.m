@@ -38,8 +38,8 @@ function [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b
 %    ==================
 %
 % * Velocity toward transducers' faces: NEGATIVE
-% * Counter-clockwise PITCH (tilt about y-AXIS, equivalent to ROLL in the TRDI convention): POSITIVE (beam 1 higher than beam 3)
-% * Counter-clockwise ROLL (tilt about x-AXIS):  NEGATIVE (beam 2 higher than beam 4)
+% * Counter-clockwise PITCH (tilt about y-AXIS, equivalent to -ROLL in the TRDI convention): POSITIVE (beam 1 higher than beam 3)
+% * Clockwise ROLL (tilt about x-AXIS, equivalent to PITCH in the TRDI convention):  POSITIVE (beam 4 higher than beam 2)
 %
 %       ^ positive y axis, psi = 0
 %       |
