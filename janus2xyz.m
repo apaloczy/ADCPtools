@@ -30,8 +30,7 @@ function [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta, varargin)
 % -------
 % [Vx, Vy, Vz]        [x, y, z]-ward components of instrument-referenced velocity vector.
 %                               Vz is the z velocity component considering the conventional form
-%                               of w (average of the estimates of w from planes 1-2 and 3-4, often
-%                               called "error velocity").
+%                               of w (average of the estimates of w from planes 1-2 and 3-4").
 %
 %                     x-axis:   Increases in beam 1's direction, away from instrument.
 %                     y-axis:   Increases in beam 3's direction, away from instrument.
