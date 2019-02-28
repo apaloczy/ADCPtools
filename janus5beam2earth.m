@@ -15,12 +15,22 @@ function [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b
 %
 % nz, nt, nb = number of vertical bins, data records, beams.
 %
+%==============================================================================
+% For TRDI instruments, call function like this:
+% [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4, b5)
+%
+% For Nortek instruments, call function like this:
+% [u, v, w] = janus2earth(head-90, roll, -ptch, theta, -b1, -b3, -b4, -b2, -b5)
+%==============================================================================
+%
 %    TRDI CONVENTION:
 %    ================
 %
 % * Velocity toward transducers' faces: POSITIVE
 % * Clockwise PITCH (tilt about x-AXIS): POSITIVE (beam 3 higher than beam 4)
 % * Clockwise ROLL (tilt about y-AXIS):  POSITIVE (beam 2 higher than beam 1)
+%
+% * Heading increases COUNTER-CLOCKWISE from the *Y-AXIS*.
 %
 %       ^ positive y axis, psi = 0
 %       |
@@ -41,20 +51,19 @@ function [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b
 % * Counter-clockwise PITCH (tilt about y-AXIS, equivalent to -ROLL in the TRDI convention): POSITIVE (beam 1 higher than beam 3)
 % * Clockwise ROLL (tilt about x-AXIS, equivalent to PITCH in the TRDI convention):  POSITIVE (beam 4 higher than beam 2)
 %
-%       ^ positive y axis, psi = 0
+% Heading increases CLOCKWISE from the *X-AXIS*.
+%
+%       ^ positive y axis, psi = -90
 %       |
 %       4
 %       |
 %       |
 %       |
-% 3 --- O --- 1 ---> positive x axis, psi = -90
+% 3 --- O --- 1 ---> positive x axis, psi = 0
 %       |
 %       |
 %       |
 %       2
-%
-% TRDI convention for beam numbering:   psi = [psi1 psi2 psi3 psi4] = [-90 90 0 180].
-% Nortek convention for beam numbering: psi = [psi1 psi2 psi3 psi4] = [-90 180 90 0].
 %
 % INPUTS
 % ------
@@ -90,12 +99,6 @@ function [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b
 % -------
 % [u, v, w, w5]           [east, north, up, up-(from vertical beam only)] components
 %                         of Earth-referenced velocity vector.
-%
-% For TRDI instruments, call function like this:
-% [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4, b5)
-%
-% For Nortek instruments, call function like this:
-% [u, v, w] = janus2earth(head, roll, -ptch, theta, -b1, -b3, -b4, -b2, -b5)
 options = struct('uvwBeam5', true,'Gimbaled', true, 'Binmap', 'none', 'r', NaN, 'r5', NaN);
 optionNames = fieldnames(options); % read the acceptable names.
 
