@@ -3,15 +3,13 @@ function [b1m, b2m, b3m, b4m, b5m] = binmap5(b1, b2, b3, b4, b5, r, r5, theta, p
 %-----
 %[b1m, b2m, b3m, b4m, b5m] = binmap5(b1, b2, b3, b4, b5, r, r5, theta, ptch, roll, how)
 %
+% theta, ptch and roll in RADIANS.
+%
 %Interpolate beam-coordinate velocities to fixed horizontal planes based on tilt angles
 %(pitch and roll).
-d2r = pi./180;
-theta = theta.*d2r;
 Sth = sin(theta);
 Cth = cos(theta);
 
-ptch = ptch.*d2r;
-roll = roll.*d2r;
 Sph2 = sin(ptch);
 Cph2 = cos(ptch);
 Sph3 = sin(roll);

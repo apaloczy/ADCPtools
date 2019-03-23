@@ -5,10 +5,12 @@ function [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta, varargin)
 %
 %    OR
 %
-% [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta, 'use3BeamSol', true|false, ...
-%                         'Binmap', BinmappingType, ptch, roll, r)
+% [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta, ...
+%                           r, ptch, roll, BinmapType, use3BeamSol)
 %
-% Where 'BinmappingType' is the type of bin mapping to apply on the raw beam-coordinate velocities.
+% Where 'BinmapType' is the type of bin mapping to apply on the raw beam-coordinate velocities.
+%
+% theta, ptch and roll in RADIANS.
 %
 % INPUTS
 % -------
@@ -35,47 +37,22 @@ function [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta, varargin)
 %                     x-axis:   Increases in beam 1's direction, away from instrument.
 %                     y-axis:   Increases in beam 3's direction, away from instrument.
 %                     z-axis:   Increases upward direction, away from instrument.
-options = struct('Binmap', 'none', 'use3BeamSol', false);
-optionNames = fieldnames(options); % read the acceptable names.
-nArgs = length(varargin);          % count arguments.
-
-if ~isempty(varargin)
-  use3BeamSol = varargin{find(strcmp(varargin, 'use3BeamSol'))+1};
-  BinmapType = varargin{find(strcmp(varargin, 'Binmap'))+1};
-  if ~strcmp(BinmapType, 'none')
-
-    if nArgs<4
-       error('Need pitch/roll angles and along-beam coordinate for bin-mapping.')
-    end
-
-    if isempty(use3BeamSol)
-      ptch = varargin{3};
-      roll = varargin{4};
-      r = varargin{5};
-      use3BeamSol = options.use3BeamSol;
-    else
-      ptch = varargin{5};
-      roll = varargin{6};
-      r = varargin{7};
-  end
-
-  end
+if length(varargin)>0
+  r = varargin{1};
+  ptch = varargin{2};
+  roll = varargin{3};
+  BinmapType = varargin{4};
+  use3BeamSol = varargin{5};
 else
-  BinmapType = options.BinmapType;
-  use3BeamSol = options.use3BeamSol;
+  BinmapType = 'none';
+  use3BeamSol = false;
 end
 
-switch BinmapType
-case 'linear'
-  disp('Mapping beams to horizontal planes with *linear* interpolation.')
-  [b1, b2, b3, b4] = binmap(b1, b2, b3, b4, r, theta, ptch, roll, 'linear');
-case 'nn'
-  disp('Mapping beams to horizontal planes with *nearest-neighbor* interpolation.')
-  [b1, b2, b3, b4] = binmap(b1, b2, b3, b4, r, theta, ptch, roll, 'nn');
-case 'none'
+if strcmp(BinmapType, 'none')
   disp('Bin mapping NOT applied.')
-otherwise
-  error(['Invalid bin mapping method: ' BinmapType '.'])
+else
+  disp(['Mapping beams to horizontal planes with *',BinmapType,'* interpolation.'])
+  [b1, b2, b3, b4] = binmap(b1, b2, b3, b4, r, theta, ptch, roll, BinmapType);
 end
 
 if use3BeamSol==true
@@ -84,8 +61,6 @@ end
 
 [Nz Nt] = size(b1);
 B = cat(3, b1, b2, b3, b4);
-d2r = pi/180;
-theta = theta.*d2r;
 uvfac = 1./(2.*sin(theta));
 wfac = 1./(4.*cos(theta)); % For w derived from beams 1-4.
 

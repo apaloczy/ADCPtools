@@ -1,14 +1,8 @@
 function [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b4, b5, varargin)
 % USAGE
 % -----
-% [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b4, b5,
-%                                 'uvwBeam5', true, 'Gimbaled', true)
-%
-%                              OR
-%
-% [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b4, b5,
-%                                 'uvwBeam5', true, 'Gimbaled', true, 'Binmap', BinmappingType,
-%                                     r, r5)
+% [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b4, b5, r, r5, ...
+%                                  Gimbaled, BinmapType, uvwBeam5, use3BeamSol)
 %
 % Calculates Earth velocities (u,v,w) = (east,north,up) from beam-referenced velocity time series
 % from a 5-beam Janus ADCP, (e.g., Appendix A of Dewey & Stringer (2007), Equations A3-A11).
@@ -98,31 +92,18 @@ function [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b
 % OUTPUTS
 % -------
 % [u, v, w, w5]           [east, north, up, up-(from vertical beam only)] components
-%                         of Earth-referenced velocity vector.
-options = struct('uvwBeam5', true,'Gimbaled', true, 'Binmap', 'none', 'r', NaN, 'r5', NaN);
-optionNames = fieldnames(options); % read the acceptable names.
-
-if any(strcmp(varargin, 'Binmap'))
-  BinmapType = varargin{find(strcmp(varargin, 'Binmap'))+1};
-  if ~strcmp(BinmapType, 'none')
-    r = varargin{end-1};
-    r5 = varargin{end};
-    varargin = varargin(1:end-2);
-  end
+if length(varargin)>0
+  r = varargin{1};
+  r5 = varargin{2};
+  Gimbaled = varargin{3};
+  BinmapType = varargin{4};
+  uvwBeam5 = varargin{5};
+  use3BeamSol = varargin{6};
 else
-  BinmapType = options.Binmap; % Default value.
-end
-
-if any(strcmp(varargin, 'Gimbaled'))
-  Gimbaled = varargin{find(strcmp(varargin, 'Gimbaled'))+1};
-else
-  Gimbaled = options.Gimbaled; % Default value.
-end
-
-if any(strcmp(varargin, 'uvwBeam5'))
-  uvwBeam5 = varargin{find(strcmp(varargin, 'uvwBeam5'))+1};
-else
-  uvwBeam5 = options.uvwBeam5; % Default value.
+  Gimbaled = true;
+  BinmapType = 'none';
+  uvwBeam5 = true;
+  use3BeamSol = false;
 end
 
 nz = size(b1, 1);              % Number of vertical bins.
@@ -130,6 +111,7 @@ nt = size(b1, 2);              % Number of records in the time series.
 
 d2r = pi/180;
 head = head.*d2r; ptch = ptch.*d2r; roll = roll.*d2r;
+theta = theta.*d2r;
 
 % Time-dependent angles (heading, pitch and roll).
 Sph1 = sin(head);
@@ -139,7 +121,7 @@ Cph1 = cos(head);
 Cph2 = cos(ptch);
 Cph3 = cos(roll);
 
-if options.Gimbaled==true % Correct heading (D&S 2007, eq. A2).
+if Gimbaled==true % Correct heading (D&S 2007, eq. A2).
   disp('Gimbaled instrument case.')
   Sph2Sph3 = Sph2.*Sph3;
   head = head + asin( Sph2Sph3./sqrt(Cph2.^2 + Sph2Sph3.^2) );
@@ -168,14 +150,15 @@ cz3 = Cph2.*Cph3;
 %                                 the same as the one used by the instrument's firmware if
 %                                 the coordinate transformation mode is set to "instrument
 %                                 coordinates" before deployment.
-if ~strcmp(BinmapType, 'none')
-  [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, 'Binmap', BinmapType, ptch./d2r, roll./d2r, r, r5);
-else
+if strcmp(BinmapType, 'none')
   [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta);
+else
+  [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, r, r5, ptch, roll, BinmapType, use3BeamSol);
 end
+
 w5 = Vz5.*cz3; % w from beam 5 only.
 
-if options.uvwBeam5==true
+if uvwBeam5==true
   disp('Using vertical beam for [u, v, w].')
   u = +Vx.*cx1 + Vy.*cy1 + Vz5.*cz1;
   v = -Vx.*cx2 + Vy.*cy2 - Vz5.*cz2;

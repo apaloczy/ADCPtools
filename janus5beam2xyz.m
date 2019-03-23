@@ -1,14 +1,12 @@
 function [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, varargin)
 % Usage
 % -----
-% [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta)
+% [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, ...
+%                                     r, r5, ptch, roll, BinmapType, use3BeamSol)
 %
-%    OR
+% Where 'BinmapType' is the type of bin mapping to perform on the raw beam velocities.
 %
-% [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, 'Binmap', BinmappingType, ...
-%                                       ptch, roll, r, r5)
-%
-% Where 'BinmappingType' is the type of bin mapping to perform on the raw beam velocities.
+% theta, ptch and roll in RADIANS.
 %
 % INPUTS
 % -------
@@ -17,12 +15,11 @@ function [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, varargin)
 % theta                            angle between local vertical and the direction
 %                                  of the Janus beams.
 %
-% Binmap ['linear' or 'nearest']
+% BinmapType ['linear' or 'nn' or 'none']
 %                                  Whether to map the beam velocities to fixed horizontal
 %                                  planes with linear interpolation ('linear') or
 %                                  nearest-neighbor interpolation ('nearest') prior to converting
 %                                  to instrument coordinates (Ott, 2002; Dewey & Stringer, 2007).
-%                                  *The default is to NOT perform any bin mapping.
 %
 % OUTPUTS
 % -------
@@ -34,50 +31,31 @@ function [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, varargin)
 %                     x-axis:   Increases in beam 1's direction, away from instrument.
 %                     y-axis:   Increases in beam 3's direction, away from instrument.
 %                     z-axis:   Increases in beam 5's direction, away from instrument.
-options = struct('Binmap', 'none');
-optionNames = fieldnames(options); % read the acceptable names.
-nArgs = length(varargin);          % count arguments.
-
-if ~isempty(varargin)
-  BinmapType = varargin{find(strcmp(varargin, 'Binmap'))+1};
-  if ~strcmp(BinmapType, 'none')
-
-    if nArgs<6
-       error('Need pitch and roll angles and along-beam coordinate for bin-mapping.')
-    end
-
-    ptch = varargin{3};
-    roll = varargin{4};
-    r = varargin{5};
-    r5 = varargin{6};
-
-  end
+if length(varargin)>0
+  r = varargin{1};
+  r5 = varargin{2};
+  ptch = varargin{3};
+  roll = varargin{4};
+  BinmapType = varargin{5};
+  use3BeamSol = varargin{6};
 else
   BinmapType = 'none';
+  use3BeamSol = false;
 end
 
-switch BinmapType
-case 'linear'
-  disp('Mapping beams to horizontal planes with *linear* interpolation.')
-  [b1, b2, b3, b4, b5] = binmap5(b1, b2, b3, b4, b5, r, r5, theta, ptch, roll, 'linear');
-case 'nn'
-  disp('Mapping beams to horizontal planes with *nearest-neighbor* interpolation.')
-  [b1, b2, b3, b4, b5] = binmap5(b1, b2, b3, b4, b5, r, r5, theta, ptch, roll, 'nn');
-case 'none'
+if strcmp(BinmapType, 'none')
   disp('Bin mapping NOT applied.')
-otherwise
-  error(['Invalid bin mapping method: ' BinmapType '.'])
+else
+  disp(['Mapping beams to horizontal planes with *',BinmapType,'* interpolation.'])
+  [b1, b2, b3, b4, b5] = binmap5(b1, b2, b3, b4, b5, r, r5, theta, ptch, roll, BinmapType);
+end
+
+if use3BeamSol==true
+  [b1, b2, b3, b4] = janus3beamsol(b1, b2, b3, b4);
 end
 
 [Nz Nt] = size(b1);
-if size(b5, 1)~=Nz
-  aux = ones(Nz - size(b5, 1), Nt).*NaN;
-  b5 = [b5; aux];
-end
-
 B = cat(3, b1, b2, b3, b4, b5);
-d2r = pi/180;
-theta = theta.*d2r;
 uvfac = 1./(2.*sin(theta));
 wfac = 1./(4.*cos(theta)); % For w derived from beams 1-4.
 

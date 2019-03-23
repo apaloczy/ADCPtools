@@ -5,9 +5,8 @@ function [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4, vararg
 %
 %                              OR
 %
-% [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4,
-%                        'Gimbaled', true|false, 'use3BeamSol', true|false, ...
-%                        'Binmap', BinmappingType, r)
+% [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4, r, ...
+%                         Gimbaled, BinmapType, uvwBeam5, use3BeamSol)
 %
 % Calculates Earth velocities (u,v,w) = (east,north,up) from beam-referenced velocity time series
 % from a 4-beam Janus ADCP, (e.g., Appendix A of Dewey & Stringer (2007), Equations A3-A11).
@@ -97,27 +96,15 @@ function [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4, vararg
 % -------
 % [u, v, w]           [east, north, up, up-(from vertical beam only)] components
 %                      of Earth-referenced velocity vector.
-options = struct('Gimbaled', true, 'use3BeamSol', false, 'Binmap', 'none', 'r', NaN);
-optionNames = fieldnames(options); % read the acceptable names.
-
-if any(strcmp(varargin, 'Binmap'))
-  BinmapType = varargin{find(strcmp(varargin, 'Binmap'))+1};
-  if ~strcmp(BinmapType, 'none')
-    r = varargin{end};
-    varargin = varargin(1:end-1);
-  end
-end
-
-if any(strcmp(varargin, 'Gimbaled'))
-  Gimbaled = varargin{find(strcmp(varargin, 'Gimbaled'))+1};
+if length(varargin)>0
+  r = varargin{1};
+  Gimbaled = varargin{2};
+  BinmapType = varargin{3};
+  use3BeamSol = varargin{4};
 else
-  Gimbaled = options.Gimbaled; % Default value.
-end
-
-if any(strcmp(varargin, 'use3BeamSol'))
-  use3BeamSol = varargin{find(strcmp(varargin, 'use3BeamSol'))+1};
-else
-  use3BeamSol = options.use3BeamSol; % Default value.
+  Gimbaled = true;
+  BinmapType = 'none';
+  use3BeamSol = false;
 end
 
 nz = size(b1, 1);              % Number of vertical bins.
@@ -125,6 +112,7 @@ nt = size(b1, 2);              % Number of records in the time series.
 
 d2r = pi/180;
 head = head.*d2r; ptch = ptch.*d2r; roll = roll.*d2r;
+theta = theta.*d2r;
 
 % Time-dependent angles (heading, pitch and roll).
 Sph1 = sin(head);
@@ -134,7 +122,7 @@ Cph1 = cos(head);
 Cph2 = cos(ptch);
 Cph3 = cos(roll);
 
-if options.Gimbaled==true % Correct heading (D&S 2007, eq. A2).
+if Gimbaled==true % Correct heading (D&S 2007, eq. A2).
   disp('Gimbaled instrument case.')
   Sph2Sph3 = Sph2.*Sph3;
   head = head + asin( Sph2Sph3./sqrt(Cph2.^2 + Sph2Sph3.^2) );
@@ -161,10 +149,10 @@ cz3 = Cph2.*Cph3;
 %                                 the same as the one used by the instrument's firmware if
 %                                 the coordinate transformation mode is set to "instrument
 %                                 coordinates" before deployment.
-if ~strcmp(BinmapType, 'none')
-  [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta, 'use3BeamSol', use3BeamSol, 'Binmap', BinmapType, ptch./d2r, roll./d2r, r);
+if strcmp(BinmapType, 'none')
+  [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta);
 else
-  [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta, 'use3BeamSol', use3BeamSol);
+  [Vx, Vy, Vz] = janus2xyz(b1, b2, b3, b4, theta, r, ptch, roll, BinmapType, use3BeamSol);
 end
 
 u = +Vx.*cx1 + Vy.*cy1 + Vz.*cz1;
