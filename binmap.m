@@ -44,9 +44,8 @@ for i=1:4
     zi = abs((PR(:,:,k)*Ei)'*z00).*r; % Actual bin height, dot product of tilt matrix with along-beam distance vector.
     boi = Boi(:,k);
 
-    for J=1:nz
+    for J=2:nz
       Zj = Z(J);
-
       if strcmp(how, 'linear')                         % Linear interpolation.
         j = nearfl(zi, Zj);
         jj = j + 1;
