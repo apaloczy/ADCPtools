@@ -18,10 +18,9 @@ Cph3 = cos(roll);
 Z = r.*Cth;
 dZu = Z(end) - Z(end-1);
 rmax = r(end);
-nz = length(Z);
 z00 = [0 0 1]';
 
-nt = length(ptch);
+[nz, nt] = size(b1);
 for k=1:nt
   PRk = [Cph3(k)             0       Sph3(k);
          Sph2(k).*Sph3(k)  Cph2(k)  -Sph2(k).*Cph3(k);
@@ -50,21 +49,25 @@ for i=1:5
     zi = abs((PR(:,:,k)*Ei)'*z00).*r; % Actual bin height, dot product of tilt matrix with along-beam distance vector.
     boi = Boi(:,k);
 
-    for J=2:nz
+    for J=2:nz-1
       Zj = Z(J);
       if strcmp(how, 'linear')                         % Linear interpolation.
         j = nearfl(zi, Zj);
         jj = j + 1;
         if jj>nz
-          j = j - 1;
-          jj = jj - 1;
+          jj = nz;
+          j = nz - 1;
         end
         zij = zi(j);
         zijj = zi(jj);
         dzj = zijj - zij;
         bmi(J,k) = ((Zj - zij)./dzj).*boi(j) + ((zijj - Zj)./dzj).*boi(jj);
       elseif strcmp(how, 'nn')                         % Nearest-neighbor interpolation.
-        bmi(J,k) = boi(near(zi, Zj));
+        j = near(zi, Zj);
+        if j>nz
+          j = nz;
+        end
+        bmi(J,k) = boi(j);
       end
     end
   end
