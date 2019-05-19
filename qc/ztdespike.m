@@ -77,7 +77,7 @@ function [udespiked, ispikes] = ztdespike(u, t, varargin)
       if visualize~=0
         plot(it, uk, 'r');
         plot(it, udspk, 'k');
-        scatter(it, uk(ispk), 'r*');
+        scatter(it(ispk), uk(ispk), 'r*');
         xlabel('Time index'); ylabel('u');
         title('red=original, black=despiked, red stars=spike locations');
         pause(visualize)
