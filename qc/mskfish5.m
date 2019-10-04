@@ -30,13 +30,13 @@ for i=1:nt
     damp = ampmax - ampmin;
 
     if damp(1)>thresh  % Fish in at least 1 beam.
-      Bi(fm(1)) = NaN;
+      Bi(k,fm(1)) = NaN;
       if k<nz                % Also mark cells k+1 as bad, because
         Bi(k+1,fm(1)) = NaN; % echo is measured at the end of the cells.
       end
 
         if damp(2)>thresh % Fish in at least 2 beams.
-          Bi(fm(2)) = NaN;
+          Bi(k,fm(2)) = NaN;
           if k<nz                % Also mark cells k+1 as bad, because
             Bi(k+1,fm(2)) = NaN; % echo is measured at the end of the cells.
           end

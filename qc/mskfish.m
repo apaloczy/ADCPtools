@@ -40,7 +40,7 @@ for i=1:nt
     damp = ampmax - ampmin;
 
     if damp(1)>thresh  % Fish in at least 1 beam.
-      Bi(fm(1)) = NaN; % Can still calculate 3-beam solutions.
+      Bi(k,fm(1)) = NaN; % Can still calculate 3-beam solutions.
       if use3BeamSol==true
         Bi = sol3b(Bi);
       end
