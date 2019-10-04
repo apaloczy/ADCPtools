@@ -16,6 +16,8 @@ Sph3 = sin(roll);
 Cph3 = cos(roll);
 
 Z = r.*Cth;
+Zbot = Z(1);
+Ztop = Z(end);
 dZu = Z(end) - Z(end-1);
 rmax = r(end);
 z00 = [0 0 1]';
