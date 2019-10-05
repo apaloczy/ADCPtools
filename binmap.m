@@ -44,6 +44,8 @@ for i=1:4
   for k=1:nt
     zi = abs((PR(:,:,k)*Ei)'*z00).*r; % Actual bin height, dot product of tilt matrix with along-beam distance vector.
     boi = Boi(:,k);
+    dboidzbot = (boi(1) - boi(2))./(zi(1) - zi(2));
+    dboidztop = (boi(end) - boi(end-1))./(zi(end) - zi(end-1));
 
     for J=1:nz
       Zj = Z(J);
@@ -57,9 +59,9 @@ for i=1:4
         zij = zi(j);
         zijj = zi(jj);
         if Zbot>zij
-          bmi(J,k) = boi(1);
+          bmi(J,k) = boi(1) + (zij - Zbot).*dboidzbot;
         elseif Ztop<zijj
-          bmi(J,k) = boi(end);
+          bmi(J,k) = boi(end) + (zijj - Ztop).*dboidztop;
         else
           dzj = zijj - zij;
           bmi(J,k) = ((Zj - zij)./dzj).*boi(j) + ((zijj - Zj)./dzj).*boi(jj);
