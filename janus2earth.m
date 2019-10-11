@@ -126,9 +126,13 @@ if Gimbaled==true % Correct heading (D&S 2007, eq. A2).
   disp('Gimbaled instrument case.')
   Sph2Sph3 = Sph2.*Sph3;
   head = head + asin( Sph2Sph3./sqrt(Cph2.^2 + Sph2Sph3.^2) );
+  Sph1 = sin(head);
+  Cph1 = cos(head);
 else                      % Correct pitch (D&S 2007, eq. A1; Lohrmann et al. 1990, eq. A1).
   disp('Fixed instrument case.')
   ptch = asin( (Sph2.*Cph3)./sqrt(1 - (Sph2.*Sph3).^2) );
+  Sph2 = sin(ptch);
+  Cph2 = cos(ptch);
 end
 
 % Convert instrument-referenced velocities
