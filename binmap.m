@@ -16,17 +16,9 @@ Sph3 = sin(roll);
 Cph3 = cos(roll);
 
 Z = r.*Cth;
-Zbot = Z(1);
-Ztop = Z(end);
-z00 = [0 0 1]';
+z00 = [0 0 -1]';
 
 [nz, nt] = size(b1);
-for k=1:nt
-  PRk = [Cph3(k)             0       Sph3(k);
-         Sph2(k).*Sph3(k)  Cph2(k)  -Sph2(k).*Cph3(k);
-        -Sph3(k).*Cph2(k)  Sph2(k)   Cph2(k).*Cph3(k)];
-  PR(:,:,k) = PRk;
-end
 
 %      b1    b2    b3    b4
 E = [-Sth  +Sth    0     0;
@@ -37,45 +29,19 @@ Bo = cat(3, b1, b2, b3, b4);
 
 for i=1:4
   Ei = E(:,i);
-
   Boi = Bo(:,:,i); % z, t, bi.
   bmi = Boi;
 
   for k=1:nt
-    zi = abs((PR(:,:,k)*Ei)'*z00).*r; % Actual bin height, dot product of tilt matrix with along-beam distance vector.
+    PR = [Cph3(k)             0       Sph3(k);
+          Sph2(k).*Sph3(k)  Cph2(k)  -Sph2(k).*Cph3(k);
+         -Sph3(k).*Cph2(k)  Sph2(k)   Cph2(k).*Cph3(k)];
 
-    % Check whether bins are lower than bottom or higher than top.
-    nbot = 1;
-    ntop = nz;
-    zlo = zi<Zbot;
-    zhi = zi>Ztop;
-    if any(zlo)
-      ntop = nz - sum(zlo);
-    end
-    if any(zhi)
-      nbot = sum(zhi);
-    end
-
-    boi = Boi(:,k);
-
-    for J=nbot:ntop
-      Zj = Z(J);
-      if strcmp(how, 'linear')                         % Linear interpolation.
-        j = nearfl(zi, Zj);
-        jj = j + 1;
-        zij = zi(j);
-        zijj = zi(jj);
-        dzj = zijj - zij;
-        bmi(J,k) = ((Zj - zij)./dzj).*boi(j) + ((zijj - Zj)./dzj).*boi(jj);
-      elseif strcmp(how, 'nn')                         % Nearest-neighbor interpolation.
-        j = near(zi, Zj);
-        bmi(J,k) = boi(j);
-      end
-    end
+    zi = ((PR*Ei)'*z00).*r; % Actual bin height, dot product of tilt matrix with along-beam distance vector.
+    bmi(:,k) = interp1(zi, Boi(:,k), Z, how, 'extrap');
   end
 
   Bm(:,:,i) = bmi;
-
 end
 
 b1m = Bm(:,:,1);
