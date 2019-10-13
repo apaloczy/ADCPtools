@@ -2,7 +2,7 @@ function [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, varargin)
 % Usage
 % -----
 % [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, ...
-%                                     r, r5, ptch, roll, BinmapType, use3BeamSol)
+%                                     r, ptch, roll, BinmapType, use3BeamSol)
 %
 % Where 'BinmapType' is the type of bin mapping to perform on the raw beam velocities.
 %
@@ -15,7 +15,7 @@ function [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, varargin)
 % theta                            angle between local vertical and the direction
 %                                  of the Janus beams.
 %
-% BinmapType ['linear' or 'nn' or 'none']
+% BinmapType ['linear' or 'nearest' or 'none']
 %                                  Whether to map the beam velocities to fixed horizontal
 %                                  planes with linear interpolation ('linear') or
 %                                  nearest-neighbor interpolation ('nearest') prior to converting
@@ -33,11 +33,10 @@ function [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, varargin)
 %                     z-axis:   Increases in beam 5's direction, away from instrument.
 if length(varargin)>0
   r = varargin{1};
-  r5 = varargin{2};
-  ptch = varargin{3};
-  roll = varargin{4};
-  BinmapType = varargin{5};
-  use3BeamSol = varargin{6};
+  ptch = varargin{2};
+  roll = varargin{3};
+  BinmapType = varargin{4};
+  use3BeamSol = varargin{5};
 else
   BinmapType = 'none';
   use3BeamSol = false;
@@ -47,7 +46,7 @@ if strcmp(BinmapType, 'none')
   disp('Bin mapping NOT applied.')
 else
   disp(['Mapping beams to horizontal planes with *',BinmapType,'* interpolation.'])
-  [b1, b2, b3, b4, b5] = binmap5(b1, b2, b3, b4, b5, r, r5, theta, ptch, roll, BinmapType);
+  [b1, b2, b3, b4, b5] = binmap5(b1, b2, b3, b4, b5, r, theta, ptch, roll, BinmapType);
 end
 
 if use3BeamSol==true

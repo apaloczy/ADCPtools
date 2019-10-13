@@ -1,7 +1,7 @@
 function [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b4, b5, varargin)
 % USAGE
 % -----
-% [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b4, b5, r, r5, ...
+% [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b4, b5, r, ...
 %                                  Gimbaled, BinmapType, uvwBeam5, use3BeamSol)
 %
 % Calculates Earth velocities (u,v,w) = (east,north,up) from beam-referenced velocity time series
@@ -94,11 +94,10 @@ function [u, v, w, w5] = janus5beam2earth(head, ptch, roll, theta, b1, b2, b3, b
 % [u, v, w, w5]           [east, north, up, up-(from vertical beam only)] components
 if length(varargin)>0
   r = varargin{1};
-  r5 = varargin{2};
-  Gimbaled = varargin{3};
-  BinmapType = varargin{4};
-  uvwBeam5 = varargin{5};
-  use3BeamSol = varargin{6};
+  Gimbaled = varargin{2};
+  BinmapType = varargin{3};
+  uvwBeam5 = varargin{4};
+  use3BeamSol = varargin{5};
 else
   Gimbaled = true;
   BinmapType = 'none';
@@ -157,7 +156,7 @@ cz3 = Cph2.*Cph3;
 if strcmp(BinmapType, 'none')
   [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta);
 else
-  [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, r, r5, ptch, roll, BinmapType, use3BeamSol);
+  [Vx, Vy, Vz, Vz5] = janus5beam2xyz(b1, b2, b3, b4, b5, theta, r, ptch, roll, BinmapType, use3BeamSol);
 end
 
 w5 = Vz5.*cz3; % w from beam 5 only.
