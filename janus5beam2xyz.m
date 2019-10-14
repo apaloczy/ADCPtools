@@ -45,7 +45,7 @@ end
 if strcmp(BinmapType, 'none')
   disp('Bin mapping NOT applied.')
 else
-  disp(['Mapping beams to horizontal planes with *',BinmapType,'* interpolation.'])
+  disp(['Mapping bins to horizontal planes with *',BinmapType,'* interpolation.'])
   [b1, b2, b3, b4, b5] = binmap5(b1, b2, b3, b4, b5, r, theta, ptch, roll, BinmapType);
 end
 
