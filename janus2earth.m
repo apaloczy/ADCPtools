@@ -6,7 +6,7 @@ function [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4, vararg
 %                              OR
 %
 % [u, v, w] = janus2earth(head, ptch, roll, theta, b1, b2, b3, b4, r, ...
-%                         Gimbaled, BinmapType, uvwBeam5, use3BeamSol)
+%                         Gimbaled, BinmapType, use3BeamSol)
 %
 % Calculates Earth velocities (u,v,w) = (east,north,up) from beam-referenced velocity time series
 % from a 4-beam Janus ADCP, (e.g., Appendix A of Dewey & Stringer (2007), Equations A3-A11).
