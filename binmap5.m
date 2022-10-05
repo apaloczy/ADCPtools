@@ -15,7 +15,8 @@ Cph2 = cos(ptch);
 Sph3 = sin(roll);
 Cph3 = cos(roll);
 
-Z = r.*Cth;
+ZJ = r.*Cth;
+Z5 = r;
 z00 = [0 0 -1]';
 
 [nz, nt] = size(b1);
@@ -32,13 +33,19 @@ for i=1:5
   Boi = Bo(:,:,i); % z, t, bi.
   bmi = Boi;
 
+  if i==5
+    Z = Z5;
+  else
+    Z = ZJ;
+  end
+
   for k=1:nt
     PR = [Cph3(k)             0       Sph3(k);
           Sph2(k).*Sph3(k)  Cph2(k)  -Sph2(k).*Cph3(k);
          -Sph3(k).*Cph2(k)  Sph2(k)   Cph2(k).*Cph3(k)];
 
     zi = ((PR*Ei)'*z00).*r; % Actual bin height, dot product of tilt matrix with along-beam distance vector.
-    bmi(:,k) = interp1(zi, Boi(:,k), Z, how, 'extrap');
+    bmi(:,k) = interp1(zi, Boi(:,k), Z, how);
   end
 
   Bm(:,:,i) = bmi;
